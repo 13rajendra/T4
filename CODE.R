@@ -24,11 +24,10 @@ T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTT
 
 
 
-##############Only taking T4 that are nearby our genes(u1) 
+##############Only taking T4 that are nearby our genes(gene_info) 
 ######################coz there are simply too many T4s
-u1=fread("genes_info.bed",sep="\t",header = T)   #Your desired set of genes
-T4n=removeintersecting(T4,u1 %>% transmute(V1,V2,V3,V4=0,V5=0,Strand),opposite = T,extra_flags = "-s")
-saveRDS(T4n,"T4_that_are_near_genes.Rdata")
+gene_info=fread("genes_info.bed",sep="\t",header = T)   #Your desired set of genes
+T4n=removeintersecting(T4,gene_info %>% transmute(V1,V2,V3,V4=0,V5=0,Strand),opposite = T,extra_flags = "-s")
 
 
 
@@ -37,15 +36,12 @@ saveRDS(T4n,"T4_that_are_near_genes.Rdata")
 b=fread("signal_3prime.bed")    #3prime signal from the bedtools genomecov
 b=b %>% transmute(V1="chr19",V2=genomic_coordinate,V3=genomic_coordinate,score=raw_counts_of_3prime)
 bn=removeintersecting(b,T4n %>% mutate(V2=as.integer(V2-50),V3=as.integer(V3+50)),opposite = T)
-saveRDS(bn,"3primesignal_near_T4_that_are_near_genes.Rdata")
 
 
 
 ###############################
 ####### NOW SCORING................
 ###############################
-# bn=readRDS("3primesignal_near_T4_that_are_near_genes.Rdata")
-# T4n=readRDS("T4_that_are_near_genes.Rdata")
 a=T4n
 for (vic in c(3,20,30)) #finding observed and lambda signals
 {print(vic)
@@ -58,18 +54,15 @@ a=a %>% transmute(V1,V2=as.integer(V2+3+20+30),V3=as.integer(V3-3-20-30),V4,V5,V
                   observed=L3,lambda1=10*(L20-L3)/40,lambda2=10*(L30-L3)/100) #finding expected signal in 10nt as per the signal density in the neighbouting region
 a=a %>% mutate(lambda=pmax(lambda1,lambda2))
 a=a %>% mutate(pval=ppois(observed+10,lambda+10,lower.tail=F),adj.pval=p.adjust(pval,method="BH"))
-saveRDS(a,"T4_3prime_score.Rdata")
 
 ###############################
 ####### NOw assigning score to our set of genes
 ###############################
-a=readRDS("T4_3prime_score.Rdata")
-a=a #%>% filter(observed>10)
-fwrite(u1,"a.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
+fwrite(gene_info,"a.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
 fwrite(a %>% filter(!grepl("_",V1)) %>% mutate(extra_column_to_avoid_bed12_format=0),"b.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
 system("bedtools intersect -s -loj -a a.bed -b b.bed > c.bed")
 c=fread("c.bed",sep="\t")
-colnames(c)=c(colnames(u1),paste0(colnames(a),"_t"),"delete")
+colnames(c)=c(colnames(gene_info),paste0(colnames(a),"_t"),"delete")
 u2= c %>% select(-c(delete))
 u2$pval_t[u2$pval_t=="."]=1;u2$adj.pval_t[u2$adj.pval_t=="."]=1 # assigning pval of 1 to those genes which. dont intersect any T4
 u2=u2 %>% mutate(T4score=-log10(as.numeric(adj.pval_t)))
