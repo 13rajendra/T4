@@ -13,27 +13,23 @@ eval(parse("functions.R"))
 ###############################
 #############Finding TTTT motifs
 ###############################
-
-######only extracting chr19 from hg38.fa
-#awk '/^>chr19$/{p=1; print; next} p && /^>/{p=0} p' /Users/rkc/igv/genomes/seq/hg38.fa > chr19.fasta
-
-##GEtting TTTT motif in both strands using seqkit
-system("cat chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  >TTTT.bed")
-T4=fread("TTTT.bed",sep="\t")
+##Getting TTTT motif in both strands using seqkit
+system("cat input/chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  > output/TTTT.bed")
+T4=fread("output/TTTT.bed",sep="\t")
 T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTTT was from 34 to 37, then seqkit would give me from 33 to 37.
 
 
 
-##############Only taking T4 that are nearby our genes(gene_info) 
+##############Choosing only those T4 that are nearby our genes(gene_info) 
 ######################coz there are simply too many T4s
-gene_info=fread("genes_info.bed",sep="\t",header = T)   #Your desired set of genes
+gene_info=fread("input/genes_info.bed",sep="\t",header = T)   #Your desired set of genes
 T4n=removeintersecting(T4,gene_info %>% transmute(V1,V2,V3,V4=0,V5=0,Strand),opposite = T,extra_flags = "-s")
 
 
 
 ############### Only taking 3prime signal nearby our chosen T4
 #################coz there are simply too many 3prime signal almost billion
-b=fread("signal_3prime.bed")    #3prime signal from the bedtools genomecov
+b=fread("input/chr19_3prime_signal.bed")    #3prime signal from the bedtools genomecov
 b=b %>% transmute(V1="chr19",V2=genomic_coordinate,V3=genomic_coordinate,score=raw_counts_of_3prime)
 bn=removeintersecting(b,T4n %>% mutate(V2=as.integer(V2-50),V3=as.integer(V3+50)),opposite = T)
 
@@ -55,11 +51,15 @@ a=a %>% transmute(V1,V2=as.integer(V2+3+20+30),V3=as.integer(V3-3-20-30),V4,V5,V
 a=a %>% mutate(lambda=pmax(lambda1,lambda2))
 a=a %>% mutate(pval=ppois(observed+10,lambda+10,lower.tail=F),adj.pval=p.adjust(pval,method="BH"))
 
+
+
+
+
 ###############################
-####### NOw assigning score to our set of genes
+####### Now assigning score to our set of genes
 ###############################
 fwrite(gene_info,"a.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
-fwrite(a %>% filter(!grepl("_",V1)) %>% mutate(extra_column_to_avoid_bed12_format=0),"b.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
+fwrite(a %>% mutate(extra_column_to_avoid_bed12_format=0),"b.bed",col.names = F,row.names = F,quote = F,sep="\t",append=F)
 system("bedtools intersect -s -loj -a a.bed -b b.bed > c.bed")
 c=fread("c.bed",sep="\t")
 colnames(c)=c(colnames(gene_info),paste0(colnames(a),"_t"),"delete")
@@ -74,7 +74,21 @@ sort(unique(u3$T4score),decreasing = T)[1:10]
 u3$T4score[is.infinite(u3$T4score)]=310
 sort(unique(u3$T4score),decreasing = T)[1:10]
 system("rm a.bed b.bed c.bed")
-saveRDS(u3,"u1_with_T4score.Rdata")
+fwrite(u3,"output/gene_info_with_T4score.bed",col.names = T,row.names = F,sep="\t",append=F)
 
-#plotting RNA polymerase III occupancy score against T4score of snAR genes
-ggplot(data=u3 %>% filter(UU=="snAR"),aes(x=pol3m,y=T4score))+geom_point()+theme_classic()+xlab("RNA Polymerase III occupancy score")
+###############################
+###############plotting RNA polymerase III occupancy score against T4score of snAR genes
+ggplot(data=u3 %>% filter(UU=="snAR"),aes(x=pol3m,y=T4score))+
+  geom_point()+theme_classic()+xlab("RNA Polymerase III occupancy score")
+
+
+
+#############################################THE END
+
+
+
+
+
+
+######only extracting chr19 from hg38.fa
+#awk '/^>chr19$/{p=1; print; next} p && /^>/{p=0} p' /Users/rkc/igv/genomes/seq/hg38.fa > chr19.fasta
