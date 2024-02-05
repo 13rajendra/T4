@@ -1,8 +1,13 @@
+
+#Loading needed libraries
 require(data.table)
 require(ggplot2)
 require(dplyr)
-
+#Loading needed functions
 eval(parse("functions.R"))
+
+
+
 
 
 ###############################
@@ -80,4 +85,3 @@ saveRDS(u3,"u1_with_T4score.Rdata")
 
 #plotting RNA polymerase III occupancy score against T4score of snAR genes
 ggplot(data=u3 %>% filter(UU=="snAR"),aes(x=pol3m,y=T4score))+geom_point()+theme_classic()+xlab("RNA Polymerase III occupancy score")
-
