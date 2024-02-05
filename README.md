@@ -1,15 +1,10 @@
-<h3 align="center">Code that calculates T4 scores</h3>
+<h3 align="center">Calculates T4scores for each TTTT motifs in genome</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=13rajendra&label=Profile%20views&color=0e75b6&style=flat" alt="13rajendra" /> </p>
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
 </p>
-
-<h3 align="left">Languages and Tools:</h3>
-<p align="left"> <a href="https://d3js.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/d3js/d3js-original.svg" alt="d3js" width="40" height="40"/> </a> </p>
-
-
 T4
 
 This is a github package which does the following:
