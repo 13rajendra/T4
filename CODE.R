@@ -14,7 +14,7 @@ eval(parse("functions.R"))
 #############Finding TTTT motifs
 ###############################
 ##Getting TTTT motif in both strands using seqkit
-system("cat input/chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  > output/TTTT.bed")
+if(TRUE){system("cat input/chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  > output/TTTT.bed")} #Put False if you have problem with seqkit
 T4=fread("output/TTTT.bed",sep="\t")
 T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTTT was from 34 to 37, then seqkit would give me from 33 to 37.
 
@@ -23,14 +23,24 @@ T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTT
 ##############Choosing only those T4 that are nearby our genes(gene_info) 
 ######################coz there are simply too many T4s
 gene_info=fread("input/genes_info.bed",sep="\t",header = T)   #Your desired set of genes
+gene_info=gene_info %>% filter(V1=="chr19" & V2>40000000)
 T4n=removeintersecting(T4,gene_info %>% transmute(V1,V2,V3,V4=0,V5=0,Strand),opposite = T,extra_flags = "-s")
+
+
+
+##############Finding 3 prime signal from bedfile
+if(FALSE){system("bedtools genomecov -dz -3 -ibam NascentRNASeq.bam   > 3prime_signal.bed")}
+#Here we are skipping this process, since we already have a trimmed output file only for end regions of
+#chromosome 19 i.e., "input/chr19_3prime_signal.bed"
+
 
 
 
 ############### Only taking 3prime signal nearby our chosen T4
 #################coz there are simply too many 3prime signal almost billion
 b=fread("input/chr19_3prime_signal.bed")    #3prime signal from the bedtools genomecov
-b=b %>% transmute(V1="chr19",V2=genomic_coordinate,V3=genomic_coordinate,score=raw_counts_of_3prime)
+colnames(b)=c("V1","V2","score")
+b=b %>% transmute(V1,V2,V3=V2,score)
 bn=removeintersecting(b,T4n %>% mutate(V2=as.integer(V2-50),V3=as.integer(V3+50)),opposite = T)
 
 
@@ -81,10 +91,11 @@ fwrite(u3,"output/gene_info_with_T4score.bed",col.names = T,row.names = F,sep="\
 ggplot(data=u3 %>% filter(UU=="snAR"),aes(x=pol3m,y=T4score))+
   geom_point()+theme_classic()+xlab("RNA Polymerase III occupancy score")
 
+ggplot(data=u3 %>% filter(pol3m>2),aes(x=UU,y=T4score))+geom_boxplot(fill="#EEEEEEEE")+geom_jitter()+theme_classic()
+
 
 
 #############################################THE END
-
 
 
 
