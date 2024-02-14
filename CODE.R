@@ -14,6 +14,7 @@ eval(parse("functions.R"))
 #############Finding TTTT motifs
 ###############################
 ##Getting TTTT motif in both strands using seqkit
+#Allow your mac to open seqkit in "System Preferences" > "Security & Privacy"
 if(TRUE){system("cat input/chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  > output/TTTT.bed")} #Put False if you have problem with seqkit
 T4=fread("output/TTTT.bed",sep="\t")
 T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTTT was from 34 to 37, then seqkit would give me from 33 to 37.
@@ -60,6 +61,7 @@ a=a %>% transmute(V1,V2=as.integer(V2+3+20+30),V3=as.integer(V3-3-20-30),V4,V5,V
                   observed=L3,lambda1=10*(L20-L3)/40,lambda2=10*(L30-L3)/100) #finding expected signal in 10nt as per the signal density in the neighbouting region
 a=a %>% mutate(lambda=pmax(lambda1,lambda2))
 a=a %>% mutate(pval=ppois(observed+10,lambda+10,lower.tail=F),adj.pval=p.adjust(pval,method="BH"))
+fwrite(a,"output/T4scores.bed",col.names = T,row.names = F,sep="\t",append=F)
 
 
 
@@ -86,7 +88,8 @@ sort(unique(u3$T4score),decreasing = T)[1:10]
 system("rm a.bed b.bed c.bed")
 fwrite(u3,"output/gene_info_with_T4score.bed",col.names = T,row.names = F,sep="\t",append=F)
 
-###############################
+
+#################Analyzing########
 ###############plotting RNA polymerase III occupancy score against T4score of snAR genes
 ggplot(data=u3 %>% filter(UU=="snAR"),aes(x=pol3m,y=T4score))+
   geom_point()+theme_classic()+xlab("RNA Polymerase III occupancy score")
