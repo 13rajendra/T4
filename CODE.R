@@ -1,3 +1,4 @@
+#Prerequisite= Install bedtools on your system.
 
 #Loading needed libraries
 require(data.table)
