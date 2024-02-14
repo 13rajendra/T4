@@ -16,6 +16,7 @@ eval(parse("functions.R"))
 ###############################
 ##Getting TTTT motif in both strands using seqkit
 #Allow your mac to open seqkit in "System Preferences" > "Security & Privacy"
+system("mkdir output") #making output folder 
 if(TRUE){system("cat input/chr19.fasta | ./seqkit locate -p TTTT -m 0 -i --bed  > output/TTTT.bed")} #Put False if you have problem with seqkit
 T4=fread("output/TTTT.bed",sep="\t")
 T4$V2=as.integer(T4$V2+1);T4$V3=as.integer(T4$V3) #Adding 1 to V2, coz if my TTTT was from 34 to 37, then seqkit would give me from 33 to 37.
