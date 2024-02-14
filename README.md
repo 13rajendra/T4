@@ -8,10 +8,11 @@
 
 This is a github package which does the following:
 
-i) Find TTTT motifs across the genome
+i) Find TTTT motifs across the genome using seqkit tool.
 
-ii) Find enrichment of 3 prime signal(acquired from bedtools genomecov) for each of these TTTT motifs which we called as T4score.
+ii) Take 3' end signal of reads from Nascent-Seq and find the enrichment of signal over each of these TTTT motifs which we called as T4score.
+    (_3'end signal of reads from nascent seq is already provided in ./output/ folder._)
 
-iii) Assigning these T4score to our set of genes of interest.
+iii) Assign the maximum T4score that intersects our set of genes of interest.
 
 
