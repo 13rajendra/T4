@@ -16,3 +16,5 @@ ii) Take 3' end signal of reads from Nascent-Seq and find the enrichment of sign
 iii) Assign the maximum T4score that intersects our set of genes of interest.
 
 
+_Prerequisite: Install bedtools on your system_
+
