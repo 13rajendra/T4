@@ -4,7 +4,7 @@
 
 # Overview:
 
-Pol III transcription termination relies on complementary binding between nascent RNA and a relatively short repeat of 4 to 6 Thymidine (T) sequences on the non-template DNA strand. The Pol III termination signature is unique from Pol I, which relies on a relatively long T-tract 15, as well as Pol II termination signals, which facilitate cleavage and polyadenylation of mRNA. We therefore developed a framework for scoring global patterns of single nucleotide 3’-end pileup at minimal sequences of 4 Ts (“T4”) as a molecular breadcrumb of Pol III transcription. This repository includes processed files and details related to our manuscript: KC et al., ...
+Pol III transcription termination relies on complementary binding between nascent RNA and a relatively short repeat of 4 to 6 Thymidine (T) sequences on the non-template DNA strand. Based on the unique termination mechanism of Pol III, we considered that single-nucleotide read enrichment mapping to the terminal 3’ nucleotide of nascent RNA over 4 or more Ts would be a strong indicator of Pol III transcription termination. We therefore developed a framework for scoring global patterns of single nucleotide 3’-end pileup at minimal sequences of 4 Ts (“T4”) as a molecular breadcrumb of Pol III transcription. This repository includes processed files and details related to our manuscript: KC et al., ...
 
 
 # Data processing:
